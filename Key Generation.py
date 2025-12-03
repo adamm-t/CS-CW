@@ -16,7 +16,6 @@ def generate_key():
     return key
 
 
-
 #Here we make the function that does the permutations for us, it uses the index of the permuation and applies it to the block of bits we give it and the result goes into an empty list
 def permute(block, table):
     result = []
@@ -28,4 +27,24 @@ def permute(block, table):
 def left_shift(block, n):
      return block[n:] + block[:n]
 
+#we are gonna generate a list of our keys using this function
+def generate_subkeys(key64):
+    #apply PC-1 to the key bits which removes 8 bits so we have 56 bits
+    key56 = permute(key64, perm_1) 
+
+#we split the bits to 2 sides
+    right = key56[28:]
+    left = key56[:28]
+    
+#here we make an empty list and we loop through the shift schedule and shift each side 
+    subkeys = []
+    for shift in left_shift:
+        right = left_shift(right, shift)
+        left = left_shift(left, shift)
+        
+#now we combine the left and right side so we have 56 bits again, then we use the 2nd permutation to get our key and add it to our list    
+        combined = left + right 
+        subkey = permute(combined, perm_2) 
+        subkeys.append(subkey)
+    return subkeys
 
