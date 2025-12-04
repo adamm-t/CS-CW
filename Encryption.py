@@ -72,29 +72,48 @@ from KeyGeneration import permute
 #Encryption permutation
 rounds_p = [16,7,20,21,29,12,28,17,1,15,23,26,5,18,31,10,2,8,24,14,32,27,3,9,19,13,30,6,22,11,4,25]
 
+#this function here just does XOR on both halves of the bits 
 def xor_bits(a, b):
     result = []
     for i in range(len(a)):
         result.append(a[i] ^ b[i])
     return result
 
+#this is the sbox function which reduces the bits from 48 to 32
 def sbox_substitution(block48):
+    output = []
+
+#this happens by first splitting the 48 bits into 8 groups of 6 bits 
+#each group of bits we take the row from the first and last bit and the column from the middle 4 bits
+    for i in range(8):
+        chunk = block48[i*6:(i+1)*6]
+        row = int(str(chunk[0]) + str(chunk[5]), 2)
+        col = ""
+        for b in chunk[1:5]:
+            col += str(b)
+        col = int(col, 2)
+
+#we lookup the value from the 48 bits using the row and col
+    value = S_BOXES[i][row][col]
+
+#convert the value to 4 bits and add it to a list which gets appended to the final output which will have 32 bits at the end
+    binary_string = f"{value:04b}"
+    bits4 = []
+    for char in binary_string:
+        bits4.append(int(char))
    
+    output.extend(bits4)
 
-
-
-
-
-   
-
+#this is feistal rounds function where we use the e table to expand the bits first so they are the same size as the key
 def rounds(r_side, subkey):
     expanded = permute(r_side, E_table)
-    
+
+#then we xor the expanded bits with key 
     xored = xor_bits(expanded, subkey)
 
+#then we use the sbox function we made to reduce the xored bits again back to 32 
     substituted = sbox_substitution(xored)
 
+#lastly we use the feistal permutation on the bits 
     return permute(substituted, rounds_p)
-
-
 
