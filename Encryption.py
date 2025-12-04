@@ -117,3 +117,37 @@ def rounds(r_side, subkey):
 #lastly we use the feistal permutation on the bits 
     return permute(substituted, rounds_p)
 
+#this is the actual encryption function which takes the plaintext bits and the subkeys list
+def encrypt_block(block64, subkeys):
+
+#first we check if both inputs are valid before starting
+    if len(block64) != 64:
+        print("Error: plaintext must be 64 bits")
+        return
+    if len(subkeys) != 16:
+        print("Error: there must be 16 subkeys")
+        return 
+
+#first step is to do the initial permutation on the plaintext using the IP that is predefined    
+    permuted = permute(block64, IP)
+
+#then we split the bits into a left and right side for the actual feistal rounds
+    left = permuted[:32]
+    right = permuted[32:]
+
+#here the 16 rounds start and we use the rounds function to do all the calculations
+    for i in range(16):
+        f_out = rounds(right, subkeys[i])         
+        
+#then we make the new right half equal the old left half XORED with the result we got from the rounds function       
+        new_right = xor_bits(left, f_out)         
+
+#next step is to swap the halves 
+        left = right
+        right = new_right
+
+#then we combine both halves so we have 64 bits again and we just do the inverse initial permutation on it which gives us the cipher text
+    preoutput = right + left                       
+    cipher = permute(preoutput, IP_INV)
+    return cipher
+  
