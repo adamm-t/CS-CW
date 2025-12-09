@@ -57,6 +57,29 @@ print(bits_to_hex(key64))
 message_bits = text_to_bits(message)
 blocks = split_into_blocks(message_bits)
 
+#we make the empty strings that will store the ciphertext and the actual text
+encrypted_hex_total = ""
+decrypted_text = ""
+
+#make an empty list that will store all the encrypted blocks so we can convert them
+print("\nEncrypting...\n")
+encrypted_blocks = []
+
+#here we loop through all the message bits blocks and encrypt them
+for block in blocks:
+    encrypted_bits = encrypt_block(block, subkeys)
+
+#we convert the bits to hexa decimal and keep appending them to the variable we made 
+    encrypted_hex = bits_to_hex(encrypted_bits)
+    encrypted_hex_total += encrypted_hex
+
+#here we add the hexadecimal block into the list of blocks and print it 
+    encrypted_blocks.append(encrypted_hex)
+    print("Block →", encrypted_hex)
+
+#display the ciphertext in hexadecimal
+print("\nFinal Ciphertext (HEX):")
+print(encrypted_hex_total)
 
 
 
