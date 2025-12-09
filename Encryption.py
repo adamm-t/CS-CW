@@ -94,7 +94,7 @@ def sbox_substitution(block48):
         col = int(col, 2)
 
 #we lookup the value from the 48 bits using the row and col
-    value = S_BOXES[i][row][col]
+        value = S_BOXES[i][row][col]
 
 #convert the value to 4 bits and add it to a list which gets appended to the final output which will have 32 bits at the end
     binary_string = f"{value:04b}"
