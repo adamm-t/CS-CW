@@ -27,15 +27,17 @@ shift_schedule = [1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1]
 
 #Here we make the function that does the permutations for us, it uses the index of the permuation and applies it to the block of bits we give it and the result of bits 
 def permute(block, table):
-    permuted_block = "" 
+    permuted_block = ""
 
-    #loop through the permutation table
-    for position in table:
-
-        #table uses 1-based indexing, so we have to minus 1
-        permuted_block += block[position - 1]
+    #we loop over each index in the table that tells us which bits to select
+    for index in table:
+        #convert the integer bit to string and add it, also we do -1 since in python we start from 0
+        bit = str(block[index - 1])
+        permuted_block += bit
 
     return permuted_block
+
+
 
 #this function shifts the bits that we have depending on the shift schedule of the round
 def left_shift(block, n):
