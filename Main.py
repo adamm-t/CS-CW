@@ -1,85 +1,63 @@
-from KeyGeneration import generate_key, generate_subkeys
+from KeyGeneration import generate_key
 from Encryption import encrypt_block
 from Decryption import decrypt_block
 
 
 #this function will convert any string into bits and store them into a list
 def text_to_bits(text):
-    bits = []
+    bits = ""
     for char in text:
-        bin_str = format(ord(char), "08b")
-        for b in bin_str:
-            bits.append(int(b))
+        bits += format(ord(char), "08b")
     return bits
 
-#this function will split all the bits into blocks of 64 bits for the DES program to run
-def split_into_blocks(bits):
-    blocks = []
-    for i in range(0, len(bits), 64):
-        block = bits[i:i+64]
-        if len(block) < 64:
-            block += [0]*(64-len(block)) 
-        blocks.append(block)
-    return blocks
+def bits_to_text(bits):
+    chars = []
+    for i in range(0, len(bits), 8):
+        byte = bits[i:i+8]
+        chars.append(chr(int(byte, 2)))
+    return "".join(chars)
+
+def pad(bits):
+    # pad with zeros to make length multiple of 64
+    while len(bits) % 64 != 0:
+        bits += "0"
+    return bits
 
 #this function will convert our bits into hexadecimal for readability of ciphertext
 def bits_to_hex(bits):
+    # pad bits so length is multiple of 4
+    while len(bits) % 4 != 0:
+        bits += "0"
+
     hex_string = ""
+
+    # convert each 4-bit nibble to hex
     for i in range(0, len(bits), 4):
-        nibble = bits[i:i+4]               
-        nibble_str = "".join(str(b) for b in nibble)  
-        nibble_int = int(nibble_str, 2)   
-        hex_string += format(nibble_int, "x") 
+        nibble = bits[i:i+4]
+
+        nibble_str = ""
+        for b in nibble:
+            nibble_str += str(b)
+
+        nibble_int = int(nibble_str, 2)
+        hex_char = format(nibble_int, "X")
+        hex_string += hex_char
+
     return hex_string
 
 #this function will convert our hexdecimal into bits again when decrypting
 def hex_to_bits(hex_string):
-    bits = []
-    for h in hex_string:
-        b = f"{int(h,16):04b}"
-        for bit in b:
-            bits.append(int(bit))
+    bits = ""
+
+    #convert each hex character to 4-bit binary
+    for hex_char in hex_string:
+        hex_int = int(hex_char, 16)
+        bin_str = format(hex_int, "04b")
+        bits += bin_str
+
     return bits
 
-#Here we start the main program and take an input from the user for the plaintext
-print("Enter your message:")
-message = input("--> ")
 
-#Generate random 64-bit key and all the subkeys
-key64 = generate_key()
-subkeys = generate_subkeys(key64)
-
-#display the key in hexadecimal  so its readable
-print("\nGenerated Key (HEX):")
-print(bits_to_hex(key64))
-
-#convert the message into bits and then split the bits into blocks of 64 bits
-message_bits = text_to_bits(message)
-blocks = split_into_blocks(message_bits)
-
-#we make the empty strings that will store the ciphertext and the actual text
-encrypted_hex_total = ""
-decrypted_text = ""
-
-#make an empty list that will store all the encrypted blocks so we can convert them
-print("\nEncrypting...\n")
-encrypted_blocks = []
-
-#here we loop through all the message bits blocks and encrypt them
-for block in blocks:
-    encrypted_bits = encrypt_block(block, subkeys)
-
-#we convert the bits to hexa decimal and keep appending them to the variable we made 
-    encrypted_hex = bits_to_hex(encrypted_bits)
-    encrypted_hex_total += encrypted_hex
-
-#here we add the hexadecimal block into the list of blocks and print it 
-    encrypted_blocks.append(encrypted_hex)
-    print("Block →", encrypted_hex)
-
-#display the ciphertext in hexadecimal
-print("\nFinal Ciphertext (HEX):")
-print(encrypted_hex_total)
 
 
 
